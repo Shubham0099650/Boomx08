@@ -162,10 +162,39 @@
         .btn-select { background: var(--primary); color: white; }
         .btn-details { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid #334155; }
 
+        /* Loading Screen UI */
+        .loader-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            border-top: 5px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #loading-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text-main);
+            letter-spacing: 1px;
+        }
+
         /* Modals & Payment */
         .modal-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px;
+            background: rgba(0,0,0,0.9); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px;
         }
 
         .modal {
@@ -275,6 +304,13 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="loading-overlay">
+    <div class="loader-content">
+        <div class="spinner"></div>
+        <div id="loading-text">Please wait</div>
+    </div>
+</div>
+
 <div class="modal-overlay" id="modal-overlay">
     <div class="modal">
         <button class="modal-close" onclick="closeModal()">&times;</button>
@@ -309,6 +345,8 @@
     const plansGrid = document.getElementById('plans-grid');
     const navMenu = document.getElementById('nav-menu');
     const modalOverlay = document.getElementById('modal-overlay');
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const loadingText = document.getElementById('loading-text');
     const successOverlay = document.getElementById('success-overlay');
     const paymentSection = document.getElementById('payment-section');
     const homeScreen = document.getElementById('home-screen');
@@ -341,13 +379,37 @@
 
     function closeModal() { modalOverlay.style.display = 'none'; }
 
+    // UPDATED SELECT PLAN WITH LOADING LOGIC
     function selectPlan(index) {
         const plan = plans[index];
-        document.getElementById('selected-plan-title').innerText = plan.name;
-        document.getElementById('selected-plan-price').innerText = plan.price;
-        homeScreen.classList.add('hidden');
-        paymentSection.style.display = 'block';
-        window.scrollTo(0,0);
+        
+        // Show Loading Screen
+        loadingOverlay.style.display = 'flex';
+        loadingText.innerText = "Please wait";
+
+        // Step 1: Text change after 1.3s
+        setTimeout(() => {
+            loadingText.innerText = "Loading QR code";
+        }, 1300);
+
+        // Step 2: Text change after 2.6s
+        setTimeout(() => {
+            loadingText.innerText = "Done";
+        }, 2600);
+
+        // Step 3: Final Transition after 3.8s
+        setTimeout(() => {
+            loadingOverlay.style.display = 'none';
+            
+            // Set plan details in payment section
+            document.getElementById('selected-plan-title').innerText = plan.name;
+            document.getElementById('selected-plan-price').innerText = plan.price;
+            
+            // Switch views
+            homeScreen.classList.add('hidden');
+            paymentSection.style.display = 'block';
+            window.scrollTo(0,0);
+        }, 3800);
     }
 
     function goBack() {
@@ -358,14 +420,11 @@
     function confirmPayment() {
         const note = document.getElementById('user-note').value;
         if(!note) return alert("Please enter a transaction ID or message.");
-        
-        // Show the modern success modal instead of alert
         successOverlay.style.display = 'flex';
     }
 
     function closeSuccessModal() {
         successOverlay.style.display = 'none';
-        // Clear input and return to home as requested
         document.getElementById('user-note').value = "";
         goBack();
     }
