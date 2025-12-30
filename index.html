@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BOOM X | Premium Subscription</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --bg: #0f172a;
+            --header-bg: #1e293b;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #c084fc;
+            --success: #22c55e;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text-main);
+            min-height: 100vh;
+            padding-top: 100px;
+        }
+
+        /* Header & Menu */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: var(--header-bg);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 2000;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            border-bottom: 1px solid #334155;
+        }
+
+        .header-center {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .brand-name {
+            font-weight: 800;
+            font-size: 1.5rem;
+            letter-spacing: 2px;
+            color: var(--text-main);
+        }
+
+        .menu-container {
+            position: absolute;
+            right: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .hamburger {
+            width: 30px;
+            height: 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            cursor: pointer;
+            z-index: 2100;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background: var(--text-main);
+            border-radius: 3px;
+            transition: 0.3s;
+        }
+
+        .nav-menu {
+            position: absolute;
+            top: 45px;
+            right: 0;
+            background: var(--card-bg);
+            border: 1px solid var(--primary);
+            border-radius: 12px;
+            width: 200px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            animation: fadeInDown 0.2s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .nav-menu a {
+            padding: 15px 20px;
+            text-decoration: none;
+            color: var(--text-main);
+            font-size: 0.95rem;
+            font-weight: 600;
+            transition: background 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .nav-menu a:hover {
+            background: rgba(99, 102, 241, 0.2);
+            color: var(--primary);
+        }
+
+        /* Layout & Cards */
+        .container { 
+            width: 100%; 
+            max-width: 900px; 
+            margin: 0 auto;
+            text-align: center; 
+            padding: 20px;
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 2rem;
+            font-weight: 800;
+            background: linear-gradient(to right, #818cf8, #c084fc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .plans-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 20px;
+        }
+
+        .plan-card {
+            background: var(--card-bg);
+            padding: 25px;
+            border-radius: 16px;
+            border: 1px solid #334155;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .plan-card:hover { border-color: var(--primary); transform: translateY(-5px); }
+        .plan-name { font-size: 1.1rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+        .plan-price { font-size: 2rem; font-weight: 700; margin: 10px 0; }
+
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .btn { flex: 1; padding: 12px; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-select { background: var(--primary); color: white; }
+        .btn-details { background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid #334155; }
+
+        /* Modals & Payment */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); display: none; justify-content: center; align-items: center; z-index: 3000; padding: 20px;
+        }
+
+        .modal {
+            background: var(--card-bg); width: 100%; max-width: 450px; padding: 30px;
+            border-radius: 20px; position: relative; border: 1px solid var(--primary);
+            animation: modalPop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-close { position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--text-dim); font-size: 1.5rem; cursor: pointer; }
+        .feature-list { list-style: none; margin-top: 15px; text-align: left;}
+        .feature-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .feature-list li::before { content: "✓ "; color: var(--accent); font-weight: bold; }
+
+        #payment-section { display: none; background: var(--card-bg); padding: 40px 20px; border-radius: 24px; max-width: 400px; margin: 0 auto; }
+        
+        .qr-container { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 12px; 
+            display: inline-block; 
+            margin-bottom: 25px; 
+        }
+
+        .qr-image {
+            width: 100%;
+            max-width: 250px;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+        }
+
+        input[type="text"] { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #334155; background: #0f172a; color: white; margin: 10px 0 20px 0; outline: none; }
+        
+        /* Success Popup Specifics */
+        .success-icon {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 20px;
+            display: block;
+        }
+        .success-msg {
+            font-size: 1.1rem;
+            line-height: 1.6;
+            margin-bottom: 25px;
+            color: var(--text-main);
+        }
+        .btn-telegram {
+            background: #24A1DE;
+            color: white;
+            text-decoration: none;
+            display: inline-block;
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+        .btn-telegram:hover { opacity: 0.9; transform: scale(1.02); }
+
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-center">
+        <div class="brand-name">BOOM X</div>
+    </div>
+
+    <div class="menu-container">
+        <div class="hamburger" onclick="toggleMenu()">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+        <div class="nav-menu" id="nav-menu">
+            <a href="https://t.me/Dealwithus72" target="_blank" onclick="toggleMenu()">
+                Contact to Admin
+            </a>
+        </div>
+    </div>
+</header>
+
+<div class="container">
+    <div id="home-screen">
+        <h1>Choose a Plan</h1>
+        <div class="plans-grid" id="plans-grid"></div>
+    </div>
+
+    <div id="payment-section">
+        <h2 id="selected-plan-title">Plan Name</h2>
+        <p id="selected-plan-price" style="color: var(--primary); font-weight: 600; margin-bottom: 25px;">Price</p>
+        
+        <div class="qr-container">
+            <img src="https://i.ibb.co/q31gMfWS/1000113037.png" alt="Scan to Pay" class="qr-image">
+        </div>
+
+        <input type="text" id="user-note" placeholder="Enter transaction ID or message...">
+        <button class="btn btn-select" onclick="confirmPayment()" style="width:100%">Confirm & Submit</button>
+        <p onclick="goBack()" style="margin-top:20px; color:var(--text-dim); cursor:pointer; text-decoration:underline;">Go Back</p>
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <h3 id="modal-title" style="color:var(--accent)">Plan Features</h3>
+        <ul class="feature-list" id="modal-features"></ul>
+    </div>
+</div>
+
+<div class="modal-overlay" id="success-overlay">
+    <div class="modal">
+        <button class="modal-close" onclick="closeSuccessModal()">&times;</button>
+        <span class="success-icon">✔️</span>
+        <h3 style="margin-bottom: 15px;">Request Sent</h3>
+        <p class="success-msg">
+            Payment request sent successfully. <br> 
+            <strong>Please send payment screenshot to Admin for confirmation.</strong>
+        </p>
+        <a href="https://t.me/Dealwithus72" target="_blank" class="btn-telegram">Contact Admin</a>
+    </div>
+</div>
+
+<script>
+    const plans = [
+        { name: "Super", price: "₹199", features: ["Call Boom", "SMS Boom", "Speed: 3 calls + 10 SMS per minute"] },
+        { name: "Ultra", price: "₹399", features: ["Call Boom", "SMS Boom", "WhatsApp SMS", "Speed: 6 calls + 15 SMS per minute", "Validity: 1 month"] },
+        { name: "Extreme", price: "₹599", features: ["Call Boom", "SMS Boom", "WhatsApp SMS", "WhatsApp Calls", "Speed: 12 calls + 30 SMS per minute", "Validity: 1 month"] },
+        { name: "Ghost", price: "₹899", features: ["Call Boom", "SMS Boom", "WhatsApp SMS", "WhatsApp Calls", "Custom SMS", "Gali Boom", "Speed: 15 calls + 40 SMS per minute", "Validity: 1 month"] },
+        { name: "Ultra Extreme", price: "₹1500", features: ["Call Boom", "WhatsApp SMS", "WhatsApp Calls", "Gali Boom", "Custom SMS", "All Mix", "Speed: 20 calls + 60 SMS per minute", "Validity: 31 days"] },
+        { name: "Custom Boombar", price: "₹2000", features: ["Special VIP Edition", "Call Boom", "SMS Boom", "WhatsApp SMS", "WhatsApp Calls", "Custom SMS", "Custom Calls", "Gali Boom", "All Mix", "Speed Edition", "Validity: 1 month"] }
+    ];
+
+    const plansGrid = document.getElementById('plans-grid');
+    const navMenu = document.getElementById('nav-menu');
+    const modalOverlay = document.getElementById('modal-overlay');
+    const successOverlay = document.getElementById('success-overlay');
+    const paymentSection = document.getElementById('payment-section');
+    const homeScreen = document.getElementById('home-screen');
+
+    function toggleMenu() {
+        const isDisplayed = navMenu.style.display === 'flex';
+        navMenu.style.display = isDisplayed ? 'none' : 'flex';
+    }
+
+    plans.forEach((plan, index) => {
+        const card = document.createElement('div');
+        card.className = 'plan-card';
+        card.innerHTML = `
+            <div class="plan-name">${plan.name}</div>
+            <div class="plan-price">${plan.price}</div>
+            <div class="btn-group">
+                <button class="btn btn-details" onclick="showDetails(${index})">Details</button>
+                <button class="btn btn-select" onclick="selectPlan(${index})">Select</button>
+            </div>
+        `;
+        plansGrid.appendChild(card);
+    });
+
+    function showDetails(index) {
+        const plan = plans[index];
+        document.getElementById('modal-title').innerText = plan.name + " Plan Features";
+        document.getElementById('modal-features').innerHTML = plan.features.map(f => `<li>${f}</li>`).join('');
+        modalOverlay.style.display = 'flex';
+    }
+
+    function closeModal() { modalOverlay.style.display = 'none'; }
+
+    function selectPlan(index) {
+        const plan = plans[index];
+        document.getElementById('selected-plan-title').innerText = plan.name;
+        document.getElementById('selected-plan-price').innerText = plan.price;
+        homeScreen.classList.add('hidden');
+        paymentSection.style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function goBack() {
+        homeScreen.classList.remove('hidden');
+        paymentSection.style.display = 'none';
+    }
+
+    function confirmPayment() {
+        const note = document.getElementById('user-note').value;
+        if(!note) return alert("Please enter a transaction ID or message.");
+        
+        // Show the modern success modal instead of alert
+        successOverlay.style.display = 'flex';
+    }
+
+    function closeSuccessModal() {
+        successOverlay.style.display = 'none';
+        // Clear input and return to home as requested
+        document.getElementById('user-note').value = "";
+        goBack();
+    }
+
+    window.onclick = function(event) {
+        if (event.target == modalOverlay) closeModal();
+        if (event.target == successOverlay) closeSuccessModal();
+        if (!event.target.closest('.menu-container')) {
+            navMenu.style.display = 'none';
+        }
+    }
+</script>
+
+</body>
+</html>
